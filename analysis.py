@@ -42,13 +42,11 @@ data=(data-data.min())/(data.max()-data.min())
 
 # Quantile detector
 # This method looks at the variables separately. It is only useful if we want to know when datapoints in one variable are going put of the quantiles as anomalies.
-# quantile_detector = QuantileAD(low=0.00001, high=0.9999)
-# quantile_anomalies = quantile_detector.fit_detect(data)
-# plot(data, anomaly = quantile_anomalies, anomaly_color="red", anomaly_tag="marker")
-# plt.title("Quantile Anomaly detector")
-# plt.show()
-# data = pd.merge(data, quantile_anomalies, left_index=True, right_index=True)
-# data = data.rename(columns={'ram_value_percentage_y':'quantile_anomaly_ram','cpu_usage_percent_y':'quantile_anomaly_cpu', 'io_usage_percent_y':'quantile_anomaly_io'})
+quantile_detector = QuantileAD(low=0.00001, high=0.9999)
+quantile_anomalies = quantile_detector.fit_detect(data)
+plot(data, anomaly = quantile_anomalies, anomaly_color="red", anomaly_tag="marker")
+plt.title("Quantile Anomaly detector")
+plt.show()
 
 
 # MinClusterDetector 
@@ -57,9 +55,8 @@ data=(data-data.min())/(data.max()-data.min())
 from adtk.detector import MinClusterDetector
 from sklearn.cluster import KMeans
 data1 = data.copy()
-min_cluster_detector = MinClusterDetector(KMeans(n_init='auto'))
+min_cluster_detector = MinClusterDetector(KMeans(random_state=0, n_init='auto'))
 mincluster_anomalies = min_cluster_detector.fit_detect(data1)
-# plot(data1, anomaly=mincluster_anomalies, anomaly_color='red', anomaly_alpha=0.3, anomaly_tag="marker", curve_group='each')
 plot(data1, anomaly=mincluster_anomalies, anomaly_color='red', anomaly_tag="marker", anomaly_alpha=0.3, curve_group='all');
 plt.title("MinCluster Anomaly Detector")
 plt.show()
