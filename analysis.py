@@ -123,12 +123,41 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
         parsed_url = urllib.parse.urlparse(self.path)
 
         if parsed_url.path == '/predict':
-            print("Predicting using MinCluster Detector method...")
-            min_cluster()
-            print("Predicting using Isolation Forest method...")
-            iso_forest()
+            response_body = [min_cluster(), iso_forest()]
+
+            self.send_response(200)
+            self.send_header('Content-type')
+            self.end_headers()
+            self.wfile.write(response_body)
         else:
             super().do_GET()
+
+    def do_POST(self):
+        if self.path == '/predict':
+            inputs = []
+            timestamp = float(input("Please enter a timestamp"))
+            inputs.append(timestamp)
+            cpu_usage_percentage = float(input("Please enter CPU usage percentage at that timestamp\n"))
+            inputs.append(cpu_usage_percentage)
+            io_usage_percentage = float(input("Please enter IO usage percentage at that timestamp\n"))
+            inputs.append(io_usage_percentage)
+
+            data_for_prediction = pd.DataFrame(inputs, columns =['timestamp','cpu_usage_percent', 'io_usage_percent'])
+
+            data_for_prediction["timestamp"] = pd.to_datetime(data_for_prediction["timestamp"])
+            data_for_prediction = data_for_prediction.set_index("timestamp")
+            
+            res = iso_forest.predict(data_for_prediction)
+            
+            response_data = {'message': 'Received input data successfully!', 'predict': int(res[0])}
+            response_body = response_data.encode('utf-8')
+
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(response_body)
+        else:
+            super().do_POST()
 
 with socketserver.TCPServer(("", PORT), MyRequestHandler) as httpd:
     print("Server is running on port", PORT)
