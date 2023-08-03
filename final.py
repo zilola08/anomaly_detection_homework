@@ -61,9 +61,9 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
           res = iso_forest.predict(df)          
           response_body = []
           if(res==-1):
-            response_body.append("It is an anomaly")
+            response_body.append("It is an anomaly\n")
           else:
-            response_body.append("It is not an anomaly")
+            response_body.append("It is not an anomaly\n")
 
           response_body = response_body[0].encode()
                 
